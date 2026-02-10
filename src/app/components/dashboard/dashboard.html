@@ -1,0 +1,56 @@
+<div class="dashboard-container">
+    <div class="header">
+        <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+
+    <h2>Employees</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let emp of employees">
+                <td>{{ emp.id }}</td>
+                <td>{{ emp.name }}</td>
+                <td>{{ emp.designation }}</td>
+                <td>{{ emp.salary }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Shops</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Shop Name</th>
+                <th>Category</th>
+                <th>Floor</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let shop of shops">
+                <td>{{ shop.id }}</td>
+                <td>{{ shop.shopName }}</td>
+                <td>{{ shop.category }}</td>
+                <td>{{ shop.floorNumber }}</td>
+                <td>{{ shop.ownerName }}</td>
+                <td>{{ shop.status }}</td>
+                <td class="actions-cell">
+                    <ng-container *ngIf="shop.status?.toUpperCase() === 'PENDING'">
+                        <button class="approve" (click)="approve(shop.id)">Approve</button>
+                        <button class="reject" (click)="reject(shop.id)">Reject</button>
+                    </ng-container>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

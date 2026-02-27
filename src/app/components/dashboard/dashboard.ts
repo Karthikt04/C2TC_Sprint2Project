@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AdminApi } from '../../services/admin-api';
 import { Router } from '@angular/router';
 import { Shop } from '../../models/shop';
@@ -7,13 +8,19 @@ import { Employee } from '../../models/employee';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
   employees: Employee[] = [];
   shops: Shop[] = [];
+
+  showEmployeeForm = false;
+  isEditMode = false;
+  currentEmployee: Employee = { name: '', designation: '', salary: 0 };
+  shopIdTemp?: number;
+
 
   constructor(private api: AdminApi, private router: Router, private cdr: ChangeDetectorRef) { }
 
@@ -44,7 +51,7 @@ export class DashboardComponent implements OnInit {
     this.api.getShops().subscribe({
       next: (data) => {
         console.log('Shops raw data from server:', data);
-        // If field names are snake_case, map them here (temporary fix)
+
         this.shops = data.map((item: any) => ({
           id: item.id,
           shopName: item.shop_name || item.shopName,
@@ -86,4 +93,65 @@ export class DashboardComponent implements OnInit {
     localStorage.removeItem('loggedIn');
     this.router.navigate(['/']);
   }
+
+  openAddForm() {
+    this.isEditMode = false;
+    this.currentEmployee = { name: '', designation: '', salary: 0 };
+    this.shopIdTemp = undefined;
+    this.showEmployeeForm = true;
+  }
+
+  openEditForm(emp: Employee) {
+    this.isEditMode = true;
+    this.currentEmployee = { ...emp };
+    this.shopIdTemp = emp.shop?.id;
+    this.showEmployeeForm = true;
+  }
+
+  cancelForm() {
+    this.showEmployeeForm = false;
+    this.currentEmployee = { name: '', designation: '', salary: 0 };
+    this.shopIdTemp = undefined;
+  }
+
+  saveEmployee() {
+    const payload: any = {
+      name: this.currentEmployee.name,
+      designation: this.currentEmployee.designation,
+      salary: this.currentEmployee.salary
+    };
+
+    if (this.shopIdTemp) {
+      payload.shop = { id: this.shopIdTemp };
+    }
+
+    if (this.isEditMode && this.currentEmployee.id) {
+      this.api.updateEmployee(this.currentEmployee.id, payload).subscribe({
+        next: () => {
+          this.loadData();
+          this.cancelForm();
+        },
+        error: (err) => console.error('Update failed', err)
+      });
+    } else {
+      this.api.addEmployee(payload).subscribe({
+        next: () => {
+          this.loadData();
+          this.cancelForm();
+        },
+        error: (err) => console.error('Add failed', err)
+      });
+    }
+  }
+
+  deleteEmployee(id?: number) {
+    if (!id) return;
+    if (!confirm('Are you sure you want to delete this employee?')) return;
+
+    this.api.deleteEmployee(id).subscribe({
+      next: () => this.loadData(),
+      error: (err) => console.error('Delete failed', err)
+    });
+  }
+
 }

@@ -33,7 +33,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadData(): void {
-    // Employees
+   
     this.api.getEmployees().subscribe({
       next: (data) => {
         console.log('Employees raw data from server:', data);
@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Shops
+
     this.api.getShops().subscribe({
       next: (data) => {
         console.log('Shops raw data from server:', data);
@@ -62,7 +62,7 @@ export class DashboardComponent implements OnInit {
         }));
         console.log('this.shops after mapping:', this.shops);
 
-        // Sort
+
         this.shops.sort((a, b) => a.floorNumber - b.floorNumber);
         this.cdr.detectChanges();
       },
@@ -99,6 +99,7 @@ export class DashboardComponent implements OnInit {
     this.currentEmployee = { name: '', designation: '', salary: 0 };
     this.shopIdTemp = undefined;
     this.showEmployeeForm = true;
+    setTimeout(() => document.getElementById('name')?.focus(), 100);
   }
 
   openEditForm(emp: Employee) {
@@ -106,6 +107,7 @@ export class DashboardComponent implements OnInit {
     this.currentEmployee = { ...emp };
     this.shopIdTemp = emp.shop?.id;
     this.showEmployeeForm = true;
+    setTimeout(() => document.getElementById('name')?.focus(), 100);
   }
 
   cancelForm() {
